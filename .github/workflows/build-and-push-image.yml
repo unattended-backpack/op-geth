@@ -1,4 +1,4 @@
-name: Build and Deploy op-geth
+name: Build and Push Op-geth
 
 on:
   push:
