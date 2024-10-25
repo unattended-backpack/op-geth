@@ -1,4 +1,4 @@
-name: Build and Push op-geth
+name: Build and Deploy op-geth
 
 on:
   push:
@@ -7,9 +7,11 @@ on:
 
 env:
   REGISTRY: "registry.digitalocean.com/sigil"
+  DEPLOYMENT_NAME: op-geth
+  CONTAINER_NAME: op-geth
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -22,7 +24,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: ${{ env.REGISTRY }}/op-geth:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -41,5 +43,16 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/op-geth:${{ github.sha }}
-            ${{ env.REGISTRY }}/op-geth:latest
+            ${{ env.REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.CONTAINER_NAME }}:latest
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save ${{ secrets.CLUSTER_NAME }}
+
+      - name: Update deployment image
+        run: |
+          kubectl set image statefulset/${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${REGISTRY}/${CONTAINER_NAME}:${GITHUB_SHA}
+          
+      - name: Verify deployment
+        run: |
+          kubectl rollout status statefulset/${DEPLOYMENT_NAME}
