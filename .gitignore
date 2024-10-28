@@ -48,6 +48,7 @@ profile.cov
 
 # so accidents don't happen
 jwt.txt
+datadir/
 
 # dashboard
 /dashboard/assets/flow-typed

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - optimism
+  workflow_dispatch:  # Allows manual triggering
 
 env:
   REGISTRY: "registry.digitalocean.com/sigil"
