@@ -1,7 +1,6 @@
 # Support setting various labels on the final image
 ARG COMMIT=""
 ARG VERSION=""
-ARG BUILDNUM=""
 
 # Build Geth in a stock Go builder container
 FROM golang:1.23-alpine AS builder
@@ -13,6 +12,7 @@ COPY go.mod /go-ethereum/
 COPY go.sum /go-ethereum/
 RUN cd /go-ethereum && go mod download
 
+# copies all files (including genesis.json) to the builder stage
 ADD . /go-ethereum
 RUN cd /go-ethereum && go run build/ci.go install -static ./cmd/geth
 
@@ -22,12 +22,14 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates
 COPY --from=builder /go-ethereum/build/bin/geth /usr/local/bin/
 
+# Copy genesis.json - this will fail if file doesn't exist
+COPY --from=builder /go-ethereum/genesis.json /usr/local/bin/genesis.json
+
 EXPOSE 8545 8546 30303 30303/udp
 ENTRYPOINT ["geth"]
 
 # Add some metadata labels to help programmatic image consumption
 ARG COMMIT=""
 ARG VERSION=""
-ARG BUILDNUM=""
 
-LABEL commit="$COMMIT" version="$VERSION" buildnum="$BUILDNUM"
+LABEL commit="$COMMIT" version="$VERSION" 

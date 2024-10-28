@@ -46,6 +46,10 @@ profile.cov
 # VS Code
 .vscode
 
+# so accidents don't happen
+jwt.txt
+datadir/
+
 # dashboard
 /dashboard/assets/flow-typed
 /dashboard/assets/node_modules

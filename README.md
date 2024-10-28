@@ -161,6 +161,22 @@ Do not forget `--http.addr 0.0.0.0`, if you want to access RPC from other contai
 and/or hosts. By default, `geth` binds to the local interface and RPC endpoints are not
 accessible from the outside.
 
+#### Docker image Building
+
+Images are built automatically through the github action, but can be manually generated with
+
+```bash
+ docker build \
+  --build-arg COMMIT=$(git rev-parse HEAD) \
+  --build-arg VERSION=$(git describe --tags --abbrev=0) \
+  -t op-geth:latest \
+  .
+```
+
+The `Dockerfile` requires a `genesis.json` in the project root.  `genesis.json`
+is generated in the rollup node, `op-node`.  Read more about it in the
+[op stack tutorial](https://docs.optimism.io/builders/chain-operators/tutorials/create-l2-rollup).
+
 ### Programmatically interfacing `geth` nodes
 
 As a developer, sooner rather than later you'll want to start interacting with `geth` and the
